@@ -696,7 +696,7 @@ write_files:
       #!/bin/bash
 
       max=$1
-      prefix="${2:-audiostream}"
+      prefix="$${2:-audiostream}"
       suffix=""
 
       # allow overriding the prefix; if it's not an expected audiostream name
