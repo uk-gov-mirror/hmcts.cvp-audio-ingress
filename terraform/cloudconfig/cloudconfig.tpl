@@ -931,8 +931,8 @@ write_files:
 
         for stream in $streams; do
         IFS="/" read -a myarray <<< $stream
-        app_name="${myarray[5]}"
-        file_name="${myarray[6]}"
+        app_name=$myarray[5]
+        file_name=$myarray[6]
         
         # Check if app name starts with 'audiostream'; if not, use 'missing' as fallback
         if [[ "$app_name" =~ ^audiostream ]]; then
@@ -941,12 +941,14 @@ write_files:
             dest_app="missing"
         fi
         
+        dest_path="/usr/local/WowzaStreamingEngine/content/azurecopy/$${dest_app}/$${file_name}"
+        
         echo "Copying..."
         echo $stream
         echo "to..."
-        echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${dest_app}/$${file_name}"
-        cp $stream "/usr/local/WowzaStreamingEngine/content/azurecopy/$${dest_app}/$${file_name}"
-        if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${dest_app}/$${file_name}" ]]; then
+        echo "$${dest_path}"
+        cp $stream "$${dest_path}"
+        if [[ -f "$${dest_path}" ]]; then
                 echo "File moved OK, removing local file"
                 sudo rm $stream
         else
