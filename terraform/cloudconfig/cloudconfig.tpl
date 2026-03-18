@@ -696,10 +696,17 @@ write_files:
       #!/bin/bash
 
       max=$1
-      prefix="audiostream"
+      prefix="${2:-audiostream}"
       suffix=""
 
-      echo "Ensuring there are $${max} Applications setup"
+      # allow overriding the prefix; if it's not an expected audiostream name
+      # use the fallback directory so recordings aren't lost
+      if [[ ! "$prefix" =~ ^audiostream ]]; then
+          echo "WARNING: requested prefix '$prefix' is not valid; using 'missing'"
+          prefix="missing"
+      fi
+
+      echo "Ensuring there are $${max} Applications setup (prefix=$prefix)"
 
       echo "Removing legacy applications"
       rm -Rf /usr/local/WowzaStreamingEngine/applications/hmcts*
@@ -754,6 +761,16 @@ write_files:
       done
 
       mkdir -p "$@"
+
+      # always ensure fallback directory exists
+      mkdir -p /usr/local/WowzaStreamingEngine/applications/missing \
+               /usr/local/WowzaStreamingEngine/conf/missing \
+               /usr/local/WowzaStreamingEngine/content/missing
+      if [[ "$prefix" != "audiostream" && "$prefix" != "missing" ]]; then
+          mkdir -p "/usr/local/WowzaStreamingEngine/applications/$prefix" \
+                   "/usr/local/WowzaStreamingEngine/conf/$prefix" \
+                   "/usr/local/WowzaStreamingEngine/content/$prefix"
+      fi
 
       # Copy Applications.xml file
       cd /usr/local/WowzaStreamingEngine/conf/ || exit
