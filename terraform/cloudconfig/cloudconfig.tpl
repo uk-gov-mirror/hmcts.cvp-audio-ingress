@@ -931,8 +931,8 @@ write_files:
 
         for stream in $streams; do
         IFS="/" read -a myarray <<< $stream
-        app_name=$myarray[5]
-        file_name=$myarray[6]
+        app_name="$${myarray[5]}"
+        file_name="$${myarray[6]}"
         
         # Check if app name starts with 'audiostream'; if not, use 'missing' as fallback
         if [[ "$app_name" =~ ^audiostream ]]; then
