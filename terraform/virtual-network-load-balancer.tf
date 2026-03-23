@@ -45,7 +45,7 @@ resource "azurerm_lb_probe" "wowza" {
 # Load Balancer - Rules
 #---------------------------------------------------
 resource "azurerm_lb_rule" "wowza" {
-  for_each = local.lb-rules
+  for_each = var.environment == "stg" ? {} : local.lb-rules
 
   loadbalancer_id                = azurerm_lb.cvp.id
   name                           = each.key
