@@ -699,7 +699,7 @@ write_files:
       prefix="audiostream"
       suffix=""
 
-      echo "Ensuring there are $${max} Applications setup (prefix=$prefix)"
+      echo "Ensuring there are $${max} Applications setup"
 
       echo "Removing legacy applications"
       rm -Rf /usr/local/WowzaStreamingEngine/applications/hmcts*
@@ -926,33 +926,6 @@ write_files:
                 echo "File didnt move!"
         fi
         done
-  - owner: wowza:wowza
-    permissions: 0775
-    path: /home/wowza/missing-recordings.sh
-    content: |
-        #!/bin/bash
-
-        streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
-
-        for stream in $streams; do
-        IFS="/" read -a myarray <<< $stream
-        if [[ $${myarray[5]} != audiostream* ]]; then
-            echo "Moving missing recording..."
-            echo $stream
-            target_dir="/usr/local/WowzaStreamingEngine/content/azurecopy/missing"
-            mkdir -p "$target_dir"
-            target="$target_dir/$${myarray[6]}"
-            echo "to..."
-            echo "$target"
-            cp $stream "$target"
-            if [[ -f "$target" ]]; then
-                    echo "File moved OK, removing local file"
-                    sudo rm $stream
-            else
-                    echo "File didnt move!"
-            fi
-        fi
-        done     
   - owner: wowza:wowza
     permissions: 0775
     path: /home/wowza/get-recordings.sh
