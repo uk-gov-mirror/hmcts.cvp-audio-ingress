@@ -696,15 +696,8 @@ write_files:
       #!/bin/bash
 
       max=$1
-      prefix="$${2:-audiostream}"
+      prefix="audiostream"
       suffix=""
-
-      # allow overriding the prefix; if it's not an expected audiostream name
-      # use the fallback directory so recordings aren't lost
-      if [[ ! "$prefix" =~ ^audiostream ]]; then
-          echo "WARNING: requested prefix '$prefix' is not valid; using 'missing'"
-          prefix="missing"
-      fi
 
       echo "Ensuring there are $${max} Applications setup (prefix=$prefix)"
 
@@ -761,16 +754,6 @@ write_files:
       done
 
       mkdir -p "$@"
-
-      # always ensure fallback directory exists
-      mkdir -p /usr/local/WowzaStreamingEngine/applications/missing \
-               /usr/local/WowzaStreamingEngine/conf/missing \
-               /usr/local/WowzaStreamingEngine/content/missing
-      if [[ "$prefix" != "audiostream" && "$prefix" != "missing" ]]; then
-          mkdir -p "/usr/local/WowzaStreamingEngine/applications/$prefix" \
-                   "/usr/local/WowzaStreamingEngine/conf/$prefix" \
-                   "/usr/local/WowzaStreamingEngine/content/$prefix"
-      fi
 
       # Copy Applications.xml file
       cd /usr/local/WowzaStreamingEngine/conf/ || exit
@@ -931,30 +914,45 @@ write_files:
 
         for stream in $streams; do
         IFS="/" read -a myarray <<< $stream
-        app_name="$${myarray[5]}"
-        file_name="$${myarray[6]}"
-        
-        # Check if app name starts with 'audiostream'; if not, use 'missing' as fallback
-        if [[ "$app_name" =~ ^audiostream ]]; then
-            dest_app="$app_name"
-        else
-            dest_app="missing"
-        fi
-        
-        dest_path="/usr/local/WowzaStreamingEngine/content/azurecopy/$${dest_app}/$${file_name}"
-        
         echo "Copying..."
         echo $stream
         echo "to..."
-        echo "$${dest_path}"
-        cp $stream "$${dest_path}"
-        if [[ -f "$${dest_path}" ]]; then
+        echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+        cp $stream "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+        if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}" ]]; then
                 echo "File moved OK, removing local file"
                 sudo rm $stream
         else
                 echo "File didnt move!"
         fi
         done
+  - owner: wowza:wowza
+    permissions: 0775
+    path: /home/wowza/missing-recordings.sh
+    content: |
+        #!/bin/bash
+
+        streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
+
+        for stream in $streams; do
+        IFS="/" read -a myarray <<< $stream
+        if [[ $${myarray[5]} != audiostream* ]]; then
+            echo "Moving missing recording..."
+            echo $stream
+            target_dir="/usr/local/WowzaStreamingEngine/content/azurecopy/missing"
+            mkdir -p "$target_dir"
+            target="$target_dir/$${myarray[6]}"
+            echo "to..."
+            echo "$target"
+            cp $stream "$target"
+            if [[ -f "$target" ]]; then
+                    echo "File moved OK, removing local file"
+                    sudo rm $stream
+            else
+                    echo "File didnt move!"
+            fi
+        fi
+        done     
   - owner: wowza:wowza
     permissions: 0775
     path: /home/wowza/get-recordings.sh
@@ -1233,6 +1231,9 @@ write_files:
         echo "10 0 * * * /home/wowza/check-cert.sh" >> $cronTaskPath
         echo "10 0 * * * /home/wowza/check-file-size.sh" >> $cronTaskPath
         fi
+
+        # Cron for moving missing recordings
+        echo "*/30 * * * * /home/wowza/missing-recordings.sh >> $logFolder/missing-recordings.log 2>&1" >> $cronTaskPath
 
         # Set Up Cron Jobs for Wowza & Root.
         crontab -u wowza $cronTaskPath
