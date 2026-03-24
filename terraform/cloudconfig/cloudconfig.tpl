@@ -1205,9 +1205,6 @@ write_files:
         echo "10 0 * * * /home/wowza/check-file-size.sh" >> $cronTaskPath
         fi
 
-        # Cron for moving missing recordings
-        echo "*/30 * * * * /home/wowza/missing-recordings.sh >> $logFolder/missing-recordings.log 2>&1" >> $cronTaskPath
-
         # Set Up Cron Jobs for Wowza & Root.
         crontab -u wowza $cronTaskPath
         crontab $cronTaskPathRoot
