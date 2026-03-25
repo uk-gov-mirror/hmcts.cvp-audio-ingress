@@ -928,6 +928,33 @@ write_files:
         done
   - owner: wowza:wowza
     permissions: 0775
+    path: /home/wowza/missing-recordings.sh
+    content: |
+        #!/bin/bash
+
+        streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
+
+        for stream in $streams; do
+        IFS="/" read -a myarray <<< $stream
+        if [[ $${myarray[5]} != audiostream* ]]; then
+            echo "Moving missing recording..."
+            echo $stream
+            target_dir="/usr/local/WowzaStreamingEngine/content/azurecopy/missing"
+            mkdir -p "$target_dir"
+            target="$target_dir/$${myarray[6]}"
+            echo "to..."
+            echo "$target"
+            cp $stream "$target"
+            if [[ -f "$target" ]]; then
+                    echo "File moved OK, removing local file"
+                    sudo rm $stream
+            else
+                    echo "File didnt move!"
+            fi
+        fi
+        done     
+  - owner: wowza:wowza
+    permissions: 0775
     path: /home/wowza/get-recordings.sh
     content: |
         #!/bin/bash
@@ -1204,6 +1231,9 @@ write_files:
         echo "10 0 * * * /home/wowza/check-cert.sh" >> $cronTaskPath
         echo "10 0 * * * /home/wowza/check-file-size.sh" >> $cronTaskPath
         fi
+
+        # Cron for moving missing recordings
+        echo "*/30 * * * * /home/wowza/missing-recordings.sh >> $logFolder/missing-recordings.log 2>&1" >> $cronTaskPath
 
         # Set Up Cron Jobs for Wowza & Root.
         crontab -u wowza $cronTaskPath
