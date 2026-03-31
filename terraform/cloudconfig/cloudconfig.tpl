@@ -932,26 +932,41 @@ write_files:
     content: |
         #!/bin/bash
 
+        # extras: all non-audiostream recordings go to /azurecopy/missing
+
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
 
         for stream in $streams; do
-        IFS="/" read -a myarray <<< $stream
-        if [[ $${myarray[5]} != audiostream* ]]; then
-            echo "Moving missing recording..."
-            echo $stream
+            IFS="/" read -a myarray <<< "$stream"
+            stream_prefix="${myarray[5]}"
+            stream_file="${myarray[6]}"
+
+            # ensure we have expected layout
+            if [[ -z "$stream_prefix" || -z "$stream_file" ]]; then
+                echo "Skipping path with unexpected layout: $stream"
+                continue
+            fi
+
+            # Use missing fallback for non-audiostream prefixes
+            if [[ "$stream_prefix" =~ ^audiostream ]]; then
+                echo "Skipping audiostream review path"
+                continue
+            fi
+
+            echo "Fallback-move: non-audiostream recording found: $stream"
             target_dir="/usr/local/WowzaStreamingEngine/content/azurecopy/missing"
             mkdir -p "$target_dir"
-            target="$target_dir/$${myarray[6]}"
-            echo "to..."
-            echo "$target"
-            cp $stream "$target"
+
+            target="$target_dir/$stream_file"
+            echo " -> $target"
+            cp "$stream" "$target"
+
             if [[ -f "$target" ]]; then
-                    echo "File moved OK, removing local file"
-                    sudo rm $stream
+                echo "File moved OK, removing local file"
+                sudo rm "$stream"
             else
-                    echo "File didnt move!"
+                echo "File didnt move!" >&2
             fi
-        fi
         done     
   - owner: wowza:wowza
     permissions: 0775
