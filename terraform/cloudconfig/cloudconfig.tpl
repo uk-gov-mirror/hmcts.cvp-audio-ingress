@@ -938,8 +938,8 @@ write_files:
 
         for stream in $streams; do
             IFS="/" read -a myarray <<< "$stream"
-            stream_prefix="${myarray[5]}"
-            stream_file="${myarray[6]}"
+            stream_prefix="$${myarray[5]}"
+            stream_file="$${myarray[6]}"
 
             # ensure we have expected layout
             if [[ -z "$stream_prefix" || -z "$stream_file" ]]; then
