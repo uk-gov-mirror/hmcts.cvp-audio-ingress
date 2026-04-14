@@ -943,7 +943,18 @@ write_files:
 
             # ensure we have expected layout
             if [[ -z "$stream_prefix" || -z "$stream_file" ]]; then
-                echo "Skipping path with unexpected layout: $stream"
+                echo "Fallback-move: unexpected layout, moving to missing: $stream"
+                target_dir="/usr/local/WowzaStreamingEngine/content/azurecopy/missing"
+                mkdir -p "$target_dir"
+                target="$target_dir/$(basename "$stream")"
+                echo " -> $target"
+                cp "$stream" "$target"
+                if [[ -f "$target" ]]; then
+                    echo "File moved OK, removing local file"
+                    sudo rm "$stream"
+                else
+                    echo "File didnt move!" >&2
+                fi
                 continue
             fi
 
