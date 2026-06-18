@@ -31,10 +31,10 @@ parameters:
     default: $(system.defaultWorkingDirectory)
 
 steps:
-  - template: templates\Azure\KeyVault\firewall-disable.yaml@azTemplates
-    parameters:
-      subscription: ${{ parameters.subscriptionName }}
-      keyVaultName: "cvp-${{ parameters.env }}-kv"
+  # - template: templates\Azure\KeyVault\firewall-disable.yaml@azTemplates
+  #   parameters:
+  #     subscription: ${{ parameters.subscriptionName }}
+  #     keyVaultName: "cvp-${{ parameters.env }}-kv"
 
   - template: tf-init.yaml
     parameters:
@@ -69,7 +69,7 @@ steps:
       environmentServiceName: ${{ parameters.subscriptionName }}
       commandOptions: '${{ parameters.env }}.tfplan -no-color'
 
-  - template: templates\Azure\KeyVault\firewall-enable.yaml@azTemplates
-    parameters:
-      subscription: ${{ parameters.subscriptionName }}
-      keyVaultName: "cvp-${{ parameters.env }}-kv"
+  # - template: templates\Azure\KeyVault\firewall-enable.yaml@azTemplates
+  #   parameters:
+  #     subscription: ${{ parameters.subscriptionName }}
+  #     keyVaultName: "cvp-${{ parameters.env }}-kv"
