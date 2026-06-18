@@ -57,6 +57,7 @@ resource "azurerm_lb_rule" "wowza" {
   probe_id                       = azurerm_lb_probe.wowza[each.key].id
   load_distribution              = "Default"
   idle_timeout_in_minutes        = 30
+  enable_floating_ip             = true
 
   depends_on = [
     azurerm_lb.cvp
