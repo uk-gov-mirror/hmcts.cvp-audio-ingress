@@ -54,12 +54,12 @@ stages:
           dependsOn: 'VmOn${{parameters.env}}'
           steps:
             - template: ../steps/tf-install.yaml
-            # - template: templates\Azure\Storage\firewall-update.yaml@azTemplates
-            #   parameters:
-            #     subscriptionName: ${{variables.subscriptionName}}
-            #     resourceGroupName: "${{variables.product}}-recordings-${{variables.env}}-rg"
-            #     storageAccountName: "${{variables.product}}recordings${{variables.env}}sa"
-            #     action: Allow 
+            - template: templates\Azure\Storage\firewall-update.yaml@azTemplates
+              parameters:
+                subscriptionName: ${{variables.subscriptionName}}
+                resourceGroupName: "${{variables.product}}-recordings-${{variables.env}}-rg"
+                storageAccountName: "${{variables.product}}recordings${{variables.env}}sa"
+                action: Allow 
             - template: ../steps/tf-apply.yaml
               parameters:
                 subscriptionName: ${{variables.subscriptionName}}
@@ -69,14 +69,14 @@ stages:
                 product: ${{variables.product}}
                 wowza_version: ${{variables.wowza_version}}
                 resourceGroup: "${{variables.product}}-recordings-${{parameters.env}}-rg"
-            # - ${{ if eq(variables.sa_private, true) }}:
-            #   - template: templates\Azure\Storage\firewall-update.yaml@azTemplates
-            #     parameters:
-            #       subscriptionName: ${{variables.subscriptionName}}
-            #       resourceGroupName: "${{variables.product}}-recordings-${{variables.env}}-rg"
-            #       storageAccountName: "${{variables.product}}recordings${{variables.env}}sa"
-            #       action: Deny
-            #       alwaysRun: true
+            - ${{ if eq(variables.sa_private, true) }}:
+              - template: templates\Azure\Storage\firewall-update.yaml@azTemplates
+                parameters:
+                  subscriptionName: ${{variables.subscriptionName}}
+                  resourceGroupName: "${{variables.product}}-recordings-${{variables.env}}-rg"
+                  storageAccountName: "${{variables.product}}recordings${{variables.env}}sa"
+                  action: Deny
+                  alwaysRun: true
 
         - job: ApplyExtToEnv
           displayName: 'Extensions to ${{parameters.env}}'
