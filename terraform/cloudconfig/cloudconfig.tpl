@@ -1013,8 +1013,8 @@ write_files:
                 echo "Copying crime recording..."
                 echo "$stream"
 
-                file_dir="${myarray[5]}"
-                file_name="${myarray[6]}"
+                file_dir="$${myarray[5]}"
+                file_name="$${myarray[6]}"
                 targetBase="/usr/local/WowzaStreamingEngine/content/crime-azurecopy"
 
                 target="$targetBase/$file_dir/$file_name"
