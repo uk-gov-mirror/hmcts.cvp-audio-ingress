@@ -981,7 +981,6 @@ write_files:
     permissions: 0775
     path: /home/wowza/move-recordings.sh
     content: |
-       content: |
         #!/bin/bash
 
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
