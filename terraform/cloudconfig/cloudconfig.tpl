@@ -981,30 +981,24 @@ write_files:
     permissions: 0775
     path: /home/wowza/move-recordings.sh
     content: |
+       content: |
         #!/bin/bash
 
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
 
         for stream in $streams; do
-            IFS="/" read -a myarray <<< "$stream"
-            echo "Copying..."
-            echo "$stream"
-
-            file_dir="${myarray[5]}"
-            file_name="${myarray[6]}"
-            targetBase="/usr/local/WowzaStreamingEngine/content/azurecopy"
-
-            target="$targetBase/$file_dir/$file_name"
-            echo "to..."
-            echo "$target"
-            mkdir -p "$(dirname "$target")"
-            cp "$stream" "$target"
-            if [[ -f "$target" ]]; then
+        IFS="/" read -a myarray <<< $stream
+        echo "Copying..."
+        echo $stream
+        echo "to..."
+        echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+        cp $stream "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+        if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}" ]]; then
                 echo "File moved OK, removing local file"
-                sudo rm "$stream"
-            else
+                sudo rm $stream
+        else
                 echo "File didnt move!"
-            fi
+        fi
         done
   - owner: wowza:wowza
     permissions: 0775
