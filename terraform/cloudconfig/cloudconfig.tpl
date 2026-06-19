@@ -766,13 +766,13 @@ write_files:
       #!/bin/bash
 
       max=$1
-      prefix="crimeaudiostream"
+      prefix="crimestream"
       suffix=""
 
       echo "Ensuring there are $${max} crime application/content directories setup"
 
       echo "Removing legacy crime applications"
-      rm -Rf /usr/local/WowzaStreamingEngine/applications/crimeaudiostream*
+      rm -Rf /usr/local/WowzaStreamingEngine/applications/crimestream*
 
       currentAppCount=$(ls -d /usr/local/WowzaStreamingEngine/applications/$${prefix}* 2>/dev/null | wc -l)
 
@@ -986,18 +986,20 @@ write_files:
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/azurecopy/*")
 
         for stream in $streams; do
-        IFS="/" read -a myarray <<< $stream
-        echo "Copying..."
-        echo $stream
-        echo "to..."
-        echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
-        cp $stream "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
-        if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}" ]]; then
-                echo "File moved OK, removing local file"
-                sudo rm $stream
-        else
-                echo "File didnt move!"
-        fi
+            if [[ "$stream" == *audiostream* ]]; then
+                IFS="/" read -a myarray <<< "$stream"
+                echo "Copying..."
+                echo "$stream"
+                echo "to..."
+                echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+                cp "$stream" "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
+                if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}" ]]; then
+                        echo "File moved OK, removing local file"
+                        sudo rm "$stream"
+                else
+                        echo "File didnt move!"
+                fi
+            fi
         done
   - owner: wowza:wowza
     permissions: 0775
@@ -1008,7 +1010,7 @@ write_files:
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/crime-azurecopy/*")
 
         for stream in $streams; do
-            if [[ "$stream" == *crimeaudiostream* ]]; then
+            if [[ "$stream" == *crimestream* ]]; then
                 IFS="/" read -a myarray <<< "$stream"
                 echo "Copying crime recording..."
                 echo "$stream"
