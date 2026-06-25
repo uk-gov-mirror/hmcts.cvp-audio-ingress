@@ -36,6 +36,10 @@ module "sa" {
       access_type = "private"
     },
     {
+      name        = local.crime_car_container_name
+      access_type = "private"
+    },
+    {
       name        = local.wowza_crime_logs_container_name
       access_type = "private"
     },

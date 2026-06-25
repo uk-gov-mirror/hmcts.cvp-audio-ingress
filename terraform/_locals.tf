@@ -3,7 +3,7 @@ locals {
   domain_dns_prefix         = var.env == "stg" ? "aat" : var.env == "sbox" ? "sandbox" : var.env == "stg" ? "staging" : var.env
   main_container_name       = "recordings"
   crime_container_name      = "crime-recordings"
-  crime_car-container_name  = "crime-car-recordings"
+  crime_car_container_name  = "crime-car-recordings"
   wowza_logs_container_name = "wowzalogs"
   wowza_crime_logs_container_name = "wowzacrimelogs"
   splunk_admin_username     = "splunkadmin"
@@ -36,7 +36,7 @@ locals {
     "crime-car-recordings-rlw" = {
       permissions     = "rlw"
       storage_account = "${replace(lower(local.service_name), "-", "")}sa"
-      container       = local.crime_car-container_name
+      container       = local.crime_car_container_name
       blob            = ""
       expiry_days     = var.expiry_days
       remaining_days  = var.remaining_days
