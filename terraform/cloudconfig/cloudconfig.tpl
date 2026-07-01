@@ -956,7 +956,7 @@ write_files:
     permissions: 0775
     path: /home/wowza/dir-creator.sh
     content: |
-      #!/bin/bash
+     #!/bin/bash
 
       max=$1
       prefix="audiostream"
@@ -1018,16 +1018,10 @@ write_files:
 
       mkdir -p "$@"
 
-       # Copy Applications.xml file
+      # Copy Applications.xml file
       cd /usr/local/WowzaStreamingEngine/conf/ || exit
       appDirs=$(ls -d $${prefix}*)
-      for appDir in $${appDirs}; do
-        if [ "$${appDir}" = "audiostream25" ]; then
-          cp -v -f /home/wowza/Application-crime.xml "$${appDir}/Application.xml"
-        else
-          cp -v -f /home/wowza/Application.xml "$${appDir}/Application.xml"
-        fi
-      done
+      echo "$${appDirs}" | xargs -n 1 cp -v -f /home/wowza/Application.xml
   - owner: wowza:wowza
     permissions: 0775
     path: /home/wowza/dir-creator-crime.sh
@@ -1035,7 +1029,7 @@ write_files:
       #!/bin/bash
 
       max=$1
-      prefix="crimeaudiostream"
+      prefix="audiostream"
       suffix=""
 
       echo "Ensuring there are $${max} crime application/content directories setup"
@@ -1098,9 +1092,12 @@ write_files:
       # Copy Applications.xml file
       cd /usr/local/WowzaStreamingEngine/conf/ || exit
       appDirs=$(ls -d $${prefix}*)
-      echo "$${appDirs}" | xargs -n 1 cp -v -f /home/wowza/Application.xml
+      for appDir in $${appDirs}; do
+        if [ "$${appDir}" = "audiostream54" ]; then
+          cp -v -f /home/wowza/Application-crime.xml "$${appDir}/Application.xml"
+        fi
       done
-      
+
   - owner: wowza:wowza
     permissions: 0775
     path: /home/wowza/check-file-size.sh
