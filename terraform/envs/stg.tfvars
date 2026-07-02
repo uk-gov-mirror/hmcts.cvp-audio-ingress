@@ -56,7 +56,7 @@ sa_allowed_ips = [
   "51.149.249.0/29",  #AnyConnect VPN egress range
   "51.149.249.32/29", #AnyConnect VPN egress range
   "194.33.249.0/29",  #AnyConnect VPN egress backup range
-  "194.33.248.0/29",  #AnyConnect VPN egress backup range
+  "194.33.248.0/29"   #AnyConnect VPN egress backup range
 ]
 
 hrs_aks_source_address_prefixes = [
