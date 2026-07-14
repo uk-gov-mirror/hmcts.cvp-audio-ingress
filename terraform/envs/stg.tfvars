@@ -23,7 +23,7 @@ schedules = [
     name      = "vm-on",
     frequency = "Day"
     interval  = 1
-    run_time  = "09:00:00"
+    run_time  = "08:00:00"
     start_vm  = true
     week_days = ["Friday", "Monday"]
   },
