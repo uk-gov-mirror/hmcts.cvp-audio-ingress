@@ -841,7 +841,7 @@ write_files:
                                     </Property>
                                     <Property>
                                         <Name>streamRecorderSegmentDuration</Name>
-                                        <Value>3600000</Value> <!-- milliseconds -->
+                                        <Value>60000</Value> <!-- milliseconds change back to 3600000 = 1 hour -->
                                         <Type>long</Type>
                                     </Property>
                                 </Properties>
