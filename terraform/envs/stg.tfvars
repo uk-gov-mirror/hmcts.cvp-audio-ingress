@@ -18,22 +18,13 @@ expiry_days                   = 10
 remaining_days                = 3
 retention_period              = 14
 schedules = [
-  #remove
-  {
-    name      = "vm-on",
-    frequency = "Day"
-    interval  = 1
-    run_time  = "08:00:00"
-    start_vm  = true
-    week_days = ["Friday", "Monday"]
-  },
   {
     name      = "vm-off",
     frequency = "Day"
     interval  = 1
     run_time  = "18:00:00"
     start_vm  = false
-  }
+  },
 ]
 route_table = [
   {
