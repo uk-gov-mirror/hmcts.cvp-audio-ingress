@@ -1260,7 +1260,6 @@ write_files:
                 echo "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
                 cp "$stream" "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}"
                 if [[ -f "/usr/local/WowzaStreamingEngine/content/azurecopy/$${myarray[5]}/$${myarray[6]}" ]]; then
-                        echo "File moved OK, removing local file"
                         sudo rm "$stream"
                 else
                         echo "File didnt move!"
@@ -1275,6 +1274,12 @@ write_files:
 
         streams=$(find /usr/local/WowzaStreamingEngine/content/ -name "*.mp4" -not -path "/usr/local/WowzaStreamingEngine/content/crime-azurecopy/*")
 
+        # Read connection details for crime recordings
+        connFile="/home/wowza/connection-crime.cfg"
+        accountName=$(grep -E "^accountName " $connFile | awk '{print $2}' | tr -d '[:space:]' || true)
+        sasToken=$(grep -E "^sasToken " $connFile | awk '{print $2}' | tr -d '[:space:]' || true)
+        container=$(grep -E "^containerName " $connFile | awk '{print $2}' | tr -d '[:space:]' || true)
+        
         for stream in $streams; do
             if [[ "$stream" == *crimestream* ]]; then
                 IFS="/" read -a myarray <<< "$stream"
@@ -1291,7 +1296,45 @@ write_files:
                 mkdir -p "$(dirname "$target")"
                 cp "$stream" "$target"
                 if [[ -f "$target" ]]; then
-                    echo "Crime file moved OK, removing local file"
+                    echo "Crime file moved OK, attempting to set blob metadata"
+                    # Calculate MD5 checksum of the original recording
+                    checksum=$(md5sum "$stream" | awk '{print $1}')
+                    echo "MD5: $checksum"
+                    
+                    # Build blob name relative to container
+                    blobName="$${file_dir}/$${file_name}"
+                    if [[ -n "$accountName" && -n "$sasToken" && -n "$container" ]]; then
+                        # Check if blob exists before updating metadata
+                        blobExists=false
+                        maxRetries=24
+                        retryCount=0
+                        while [ "$blobExists" = false ] && [ "$retryCount" -lt "$maxRetries" ]; do
+                            if az storage blob exists \
+                                --account-name "$accountName" \
+                                --container-name "$container" \
+                                --name "$blobName" \
+                                --sas-token "$sasToken" \
+                                --query "exists" -o tsv | grep -q "true"; then
+                                blobExists=true
+                            else
+                                retryCount=$((retryCount + 1))
+                                echo "Blob $blobName does not exist yet. Retry $retryCount/$maxRetries. Waiting 5 seconds...""
+                                sleep 5
+                            fi
+                        done
+                        az storage blob metadata update \
+                            --account-name "$accountName" \
+                            --container-name "$container" \
+                            --name "$blobName" \
+                            --metadata \
+                            checksum="$checksum" \
+                            checksumAlgorithm="MD5" \
+                            --sas-token "$sasToken" \
+                            || echo "Failed to update blob metadata for $blobName"
+                    else
+                        echo "Missing storage connection details; skipping metadata update"
+                    fi
+
                     sudo rm "$stream"
                 else
                     echo "Crime file didnt move!"
