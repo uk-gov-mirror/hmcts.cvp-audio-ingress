@@ -1023,6 +1023,7 @@ write_files:
       appDirs=$(ls -d $${prefix}*)
       echo "$${appDirs}" | xargs -n 1 cp -v -f /home/wowza/Application.xml
   - owner: wowza:wowza
+    permissions: 0775
     path: /home/wowza/dir-creator-crime.sh
     content: |
       #!/bin/bash
