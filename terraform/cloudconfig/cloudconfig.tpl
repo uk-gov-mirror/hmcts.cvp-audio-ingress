@@ -1032,19 +1032,20 @@ write_files:
       if [ -z "$prefix" ]; then
         prefix="audiostream"
       fi
+      if [ "$${prefix}" != "audiostream*" ]; then
+        sharedDir="crimeaudiostream"
+        echo "Using shared crime directory $${sharedDir} for prefix $${prefix}"
 
-      sharedDir="crimeaudiostream"
-      echo "Using shared crime directory $${sharedDir} for prefix $${prefix}"
+        rm -Rf /usr/local/WowzaStreamingEngine/applications/$${sharedDir}
+        rm -Rf /usr/local/WowzaStreamingEngine/conf/$${sharedDir}
+        rm -Rf /usr/local/WowzaStreamingEngine/content/$${sharedDir}
 
-      rm -Rf /usr/local/WowzaStreamingEngine/applications/$${sharedDir}
-      rm -Rf /usr/local/WowzaStreamingEngine/conf/$${sharedDir}
-      rm -Rf /usr/local/WowzaStreamingEngine/content/$${sharedDir}
+        mkdir -p /usr/local/WowzaStreamingEngine/applications/$${sharedDir}
+        mkdir -p /usr/local/WowzaStreamingEngine/conf/$${sharedDir}
+        mkdir -p /usr/local/WowzaStreamingEngine/content/$${sharedDir}
 
-      mkdir -p /usr/local/WowzaStreamingEngine/applications/$${sharedDir}
-      mkdir -p /usr/local/WowzaStreamingEngine/conf/$${sharedDir}
-      mkdir -p /usr/local/WowzaStreamingEngine/content/$${sharedDir}
-
-      cp -v -f /home/wowza/Application-crime.xml /usr/local/WowzaStreamingEngine/conf/$${sharedDir}/Application.xml
+        cp -v -f /home/wowza/Application-crime.xml /usr/local/WowzaStreamingEngine/conf/$${sharedDir}/Application.xml
+      fi
   - owner: wowza:wowza
     permissions: 0775
     path: /home/wowza/check-file-size.sh
